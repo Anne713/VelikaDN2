@@ -20,30 +20,9 @@ public class Igra extends JFrame {
         Menu menu = new Menu(modelIgre);
         setJMenuBar(menu);
 
-        //nekaj najgrsega na svetu, theres gotta be a better way
         menu.setNaloziIgroListener(model -> {
-            modelIgre = model;
-            modelIgre.rnd = new Random();
-            prikazIgre.posodobi(modelIgre);
-
-            Menu menuNov = new Menu(modelIgre);
-            setJMenuBar(menuNov);
-            menuNov.posodobi();
-
-            modelIgre.setListener(() -> {
-                prikazIgre.posodobi(modelIgre);
-                menuNov.posodobi();
-            });
-
-            prikazIgre.polje.setListener((vrstica, stolpec) -> {
-                modelIgre.poteza(vrstica, stolpec);
-                if (modelIgre.igreJeKonec) {
-                    String sporocilo = sporociRezultat(Math.abs(modelIgre.trenutnaVsota-modelIgre.ciljnaVsota));
-                    JOptionPane.showMessageDialog(this, sporocilo, "Konec igre", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
+            modelIgre.inicStaroIgro(model);
         });
-        //plus ne dela vec kot enkrat tkoda ja, tezave
 
         modelIgre.setListener(() -> {
             prikazIgre.posodobi(modelIgre);

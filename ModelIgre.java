@@ -89,6 +89,26 @@ public class ModelIgre implements Serializable {
         }
     }
 
+    void inicStaroIgro (ModelIgre starModel) {
+        stPotez = starModel.stPotez;
+        ciljnaVsota = starModel.ciljnaVsota;
+        velikost = starModel.velikost;
+        trenutnaVsota = starModel.trenutnaVsota;
+        current = starModel.current;
+        previous = starModel.previous;
+        stevilke = starModel.stevilke;
+        stanja = starModel.stanja;
+        igreJeKonec = starModel.igreJeKonec;
+        zadnjeStPotez = starModel.zadnjeStPotez;
+        zadnjaCiljnaVsota = starModel.zadnjaCiljnaVsota;
+        zadnjaVelikost = starModel.zadnjaVelikost;
+        zacetneStevilke = starModel.zacetneStevilke;
+
+        if (listener != null) {
+            listener.modelSpremenjen();
+        }
+    }
+
     void poteza (int vrstica, int stolpec) {
         previous = current;
         current = stevilke[vrstica][stolpec];
