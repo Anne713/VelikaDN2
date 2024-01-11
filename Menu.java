@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Menu extends JMenuBar {
     ModelIgre modelIgre;
@@ -131,9 +133,13 @@ public class Menu extends JMenuBar {
 
     private void shraniModel(Path izbranPath) throws IOException {
         Shranjevanje shranjevanje = new Shranjevanje();
+        LocalDateTime cas = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        String doberCas = cas.format(formatter);
+
         try {
             ModelIgre model = modelIgre;
-            shranjevanje.shrani(model, izbranPath.resolve("MoreOrLessGame"+rnd.nextInt(1,100000)+".dat"));
+            shranjevanje.shrani(model, izbranPath.resolve("MoreOrLessGame_"+doberCas+".dat"));
         } catch (IOException e) {
             throw e;
         }
@@ -188,8 +194,8 @@ public class Menu extends JMenuBar {
 
     void nastaviSvojoIgro (JMenuBar parentMenu) {
         JTextField velikostField = new JTextField();
-        JTextField stPotezField = new JTextField();
-        JTextField ciljnaVsotaField = new JTextField();
+        JTextField stPotezField = new JTextField(""+zacetnoStPotez);
+        JTextField ciljnaVsotaField = new JTextField(""+zacetnaCiljnaVsota);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -207,6 +213,8 @@ public class Menu extends JMenuBar {
             int velikost = 0;
             int stPotez = 0;
             int ciljnaVsota = 0;
+            boolean napakaPriVnosu = false;
+            String napake = "";
 
             if (velikostField.getText().isEmpty()) {
                 if (zacetnaVelikost == 0) {
@@ -215,11 +223,13 @@ public class Menu extends JMenuBar {
                     velikost = zacetnaVelikost;
                 }
             } else if (!isInteger(velikostField.getText())) {
-                JOptionPane.showMessageDialog(this, "Velikost polja mora biti celo število.", "Nepravilna velikost polja", JOptionPane.WARNING_MESSAGE);
+                napakaPriVnosu = true;
+                napake += "Velikost polja mora biti celo število. \n";
             } else {
                 int st = Integer.parseInt(velikostField.getText());
                 if (st < 10 || st > 20) {
-                    JOptionPane.showMessageDialog(this, "Velikost polja mora biti med 10 in 20.", "Nepravilna velikost polja", JOptionPane.WARNING_MESSAGE);
+                    napakaPriVnosu = true;
+                    napake += "Velikost polja mora biti med 10 in 20. \n";
                 } else {
                     velikost = zacetnaVelikost = st;
                 }
@@ -228,27 +238,36 @@ public class Menu extends JMenuBar {
             if (stPotezField.getText().isEmpty()) {
                 stPotez = rnd.nextInt(5, 50);
             } else if (!isInteger(stPotezField.getText())) {
-                JOptionPane.showMessageDialog(this, "Število potez mora biti celo število.", "Nepravilno število potez", JOptionPane.WARNING_MESSAGE);
+                napakaPriVnosu = true;
+                napake += "Število potez mora biti celo število. \n";
             } else {
                 int st = Integer.parseInt(stPotezField.getText());
                 if (st < 1 || st > velikost*velikost) {
-                    JOptionPane.showMessageDialog(this, "Število potez mora biti večje od nič in manjše od števila vseh polj.", "Nepravilno število potez", JOptionPane.WARNING_MESSAGE);
+                    napakaPriVnosu = true;
+                    napake += "Število potez mora biti večje od nič in manjše od števila vseh polj. \n";
                 } else {
-                    stPotez = st;
+                    stPotez = zacetnoStPotez = st;
                 }
             }
 
             if (ciljnaVsotaField.getText().isEmpty()) {
                 ciljnaVsota = rnd.nextInt(stPotez, stPotez*9);
             } else if (!isInteger(ciljnaVsotaField.getText())) {
-                JOptionPane.showMessageDialog(this, "Ciljna vsota mora biti celo število.", "Nepravilna ciljna vsota", JOptionPane.WARNING_MESSAGE);
+                napakaPriVnosu = true;
+                napake += "Ciljna vsota mora biti celo število. \n";
             } else {
                 int st = Integer.parseInt(ciljnaVsotaField.getText());
                 if (st < stPotez || st > stPotez*9) {
-                    JOptionPane.showMessageDialog(this, "Ciljna vsota mora biti dosegljiva znotraj danega igralnega polja.", "Nepravilna ciljna vsota", JOptionPane.WARNING_MESSAGE);
+                    napakaPriVnosu = true;
+                    napake += "Ciljna vsota mora biti dosegljiva znotraj danega igralnega polja. \n";
                 } else {
-                    ciljnaVsota = st;
+                    ciljnaVsota = zacetnaCiljnaVsota = st;
                 }
+            }
+
+            if (napakaPriVnosu) {
+                JOptionPane.showMessageDialog(this, napake, "Nepravilen vnos", JOptionPane.WARNING_MESSAGE);
+                nastaviSvojoIgro(parentMenu);
             }
 
             if (stPotez > 0 && ciljnaVsota > 0 && velikost > 0) {

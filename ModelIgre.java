@@ -14,27 +14,22 @@ public class ModelIgre implements Serializable {
     boolean igreJeKonec;
     transient Random rnd = new Random();
     int zadnjeStPotez;
-    int zadnjaCiljnaVsota;
-    int zadnjaVelikost;
-    int[][] zacetneStevilke;
 
     void inicializacija (int stPotez, int ciljnaVsota, int velikost) {
         this.stPotez = zadnjeStPotez = stPotez;
-        this.ciljnaVsota = zadnjaCiljnaVsota = ciljnaVsota;
-        this.velikost = zadnjaVelikost = velikost;
+        this.ciljnaVsota = ciljnaVsota;
+        this.velikost = velikost;
         trenutnaVsota = 0;
         current = 1000;
         previous = 1;
         igreJeKonec = false;
 
         stevilke = new int[velikost][velikost];
-        zacetneStevilke = new int[velikost][velikost];
         stanja = new StanjeCelice[velikost][velikost];
         for (int i = 0; i < velikost; i++) {
             for (int j = 0; j < velikost; j++) {
                 stevilke[i][j] = rnd.nextInt(1,10);
                 stanja[i][j] = StanjeCelice.DOVOLJENA;
-                zacetneStevilke[i][j] = stevilke[i][j];
             }
         }
         if (listener != null) {
@@ -69,18 +64,14 @@ public class ModelIgre implements Serializable {
 
     void inicIstoIgro () {
         this.stPotez = zadnjeStPotez;
-        this.ciljnaVsota = zadnjaCiljnaVsota;
-        this.velikost = zadnjaVelikost;
         trenutnaVsota = 0;
         current = 1000;
         previous = 1;
         igreJeKonec = false;
 
-        stevilke = new int[velikost][velikost];
         stanja = new StanjeCelice[velikost][velikost];
         for (int i = 0; i < velikost; i++) {
             for (int j = 0; j < velikost; j++) {
-                stevilke[i][j] = zacetneStevilke[i][j];
                 stanja[i][j] = StanjeCelice.DOVOLJENA;
             }
         }
@@ -100,9 +91,6 @@ public class ModelIgre implements Serializable {
         stanja = starModel.stanja;
         igreJeKonec = starModel.igreJeKonec;
         zadnjeStPotez = starModel.zadnjeStPotez;
-        zadnjaCiljnaVsota = starModel.zadnjaCiljnaVsota;
-        zadnjaVelikost = starModel.zadnjaVelikost;
-        zacetneStevilke = starModel.zacetneStevilke;
 
         if (listener != null) {
             listener.modelSpremenjen();

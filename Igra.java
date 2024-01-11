@@ -48,7 +48,7 @@ public class Igra extends JFrame {
     String sporociRezultat (int rezultat) {
         String sporocilo;
         if (rezultat == 0) {
-            sporocilo = "Zmagal si! Bravo:)";
+            sporocilo = "Zmagaš! Bravo:)";
         } else if (rezultat > 0 && rezultat < 10) {
             sporocilo = "Tvoj rezultat je "+rezultat+", bravo!";
         } else {
