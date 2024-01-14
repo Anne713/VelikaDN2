@@ -1,6 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Okno igre More or less less is more.
+ * Nosi ModelIgre, Menu in PrikazIgre.
+ * Implementira(?) listenerje modela igre in celic.
+ */
 public class Igra extends JFrame {
 
     public ModelIgre modelIgre;
@@ -31,12 +36,10 @@ public class Igra extends JFrame {
                     JOptionPane.showMessageDialog(Igra.this, sporocilo, "Konec igre", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
-
             @Override
             public void celicaPodMisko(int vrstica, int stolpec) {
                 modelIgre.prikaziNamig(vrstica, stolpec);
             }
-
             @Override
             public void celicaNiVecPodMisko(int vrstica, int stolpec) {
                 modelIgre.skrijNamig();
@@ -49,6 +52,11 @@ public class Igra extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     *
+     * @param rezultat
+     * @return sporocilo, ki je razlicno navduseno glede na rezultat
+     */
     String sporociRezultat (int rezultat) {
         String sporocilo;
         if (rezultat == 0) {

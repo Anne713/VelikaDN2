@@ -10,6 +10,10 @@ import java.util.Random;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Menu, preko katerega lahko uporabnik nastavlja igro.
+ * Hrani podatke zadnje nastavljene igre.
+ */
 public class Menu extends JMenuBar {
     ModelIgre modelIgre;
     int zacetnoStPotez;
@@ -45,6 +49,12 @@ public class Menu extends JMenuBar {
             });
         }
     }
+
+    /**
+     * Konstruktor ustvari vse gumbe menuja in jim nastavi primerne listenerje.
+     *
+     * @param model
+     */
     Menu(ModelIgre model) {
         this.modelIgre = model;
         this.zacetnoStPotez = model.stPotez;
@@ -94,12 +104,23 @@ public class Menu extends JMenuBar {
 
     }
 
+    /**
+     * Olajsa dodajanje MenuItemov v Menu.
+     *
+     * @param parent
+     * @param label
+     * @param actionListener
+     */
     void dodajMenuItem(JMenu parent, String label, ActionListener actionListener) {
         JMenuItem item = new JMenuItem(label);
         item.addActionListener(actionListener);
         parent.add(item);
     }
 
+    /**
+     * Sprozi JFileChooser, preko katerega uporabnik izbere pot, na katero nato shrani trenutno stanje igre.
+     * Predlagano ime datoteke vsebuje trenutni cas.
+     */
     private void izberiPathInShrani() {
         LocalDateTime cas = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
@@ -123,6 +144,9 @@ public class Menu extends JMenuBar {
         }
     }
 
+    /**
+     * Sprozi JFileChooser, preko katerega uporabnik izbere pot, s katere nato nalozi shranjeno igro.
+     */
     private void izberiPathInNalozi() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Izberi dokument");
@@ -140,6 +164,11 @@ public class Menu extends JMenuBar {
         }
     }
 
+    /**
+     * Naredi error dialog s sporocilom.
+     *
+     * @param sporocilo
+     */
     void prikaziNapako(String sporocilo) {
         if (sporocilo == null)
             sporocilo = "Neznana napaka.";
@@ -147,6 +176,9 @@ public class Menu extends JMenuBar {
         JOptionPane.showMessageDialog(this, sporocilo, "Napaka", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Naredi dialog, v katerem pisejo navodila igre, ki jih prebere iz zunanje datoteke.
+     */
     void prikaziNavodila() {
         try (InputStream is = Menu.class.getResourceAsStream("navodila.txt")) {
             String vsebina = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -156,6 +188,11 @@ public class Menu extends JMenuBar {
         }
     }
 
+    /**
+     * Uporabniku omogoci nastaviti velikost polja, stevilo potez in ciljno vrednost po izbiri
+     * z uporabo dialoga.
+     * Preveri, da so vnosi pravilni in teoreticno dosegljivi v igri.
+     */
     void nastaviSvojoIgro() {
         String predvidenaVelikost;
         if (zacetnaVelikost == 0) {
@@ -175,6 +212,14 @@ public class Menu extends JMenuBar {
         panel.add(stPotezField);
         panel.add(new JLabel("Ciljna vsota:"));
         panel.add(ciljnaVsotaField);
+
+
+
+
+
+
+
+        // to sva nekje popravlala da ni blo tega int-a???
 
         int result = JOptionPane.showConfirmDialog(this, panel, "Nastavi svojo igro",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -257,6 +302,10 @@ public class Menu extends JMenuBar {
 
     Random rnd = new Random();
 
+    /**
+     * Poskrbi, da je vedno izbran samo en gumb v vsakem menuju.
+     * Potrebno klicati, ko se spremeni velikost ali tezavnost.
+     */
     void posodobi() {
         for (IzbiraVelikosti izbira : velikosti) {
             izbira.setSelected(izbira.velikost == zacetnaVelikost);

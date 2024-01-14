@@ -2,19 +2,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Mreza vseh celic v igri. Celicam doda listenerja.
+ */
 public class IgralnoPolje extends JPanel {
+    int zadnjaVelikost = 0;
+    Celica[][] celice;
+    Listener listener;
+
+    public IgralnoPolje () {
+    }
 
     public interface Listener {
         void celicaKliknjena(int vrstica, int stolpec);
         void celicaPodMisko(int vrstica, int stolpec);
         void celicaNiVecPodMisko(int vrstica, int stolpec);
     }
-    Listener listener;
 
     public void setListener(Listener listener) {
         this.listener = listener;
     }
 
+    /**
+     * ??
+     */
     private final ActionListener celicaListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -25,6 +36,9 @@ public class IgralnoPolje extends JPanel {
         }
     };
 
+    /**
+     * ??
+     */
     private final MouseListener miskaListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
@@ -43,14 +57,16 @@ public class IgralnoPolje extends JPanel {
         }
     };
 
-    int zadnjaVelikost = 0;
-    Celica[][] celice;
-
-    public IgralnoPolje () {
-    }
-
     static final int S = 32;
     static final int D = S + 2;
+
+    /**
+     * Izrise mrezo celic glede na njihovo trenutno stanje, jim doda listenerja,
+     * in izrise oznake vrstic in stolpcev.
+     * Potrebno poklicati vsakic, ko se spremenijo stanja celic.
+     *
+     * @param model
+     */
 
     void posodobi(ModelIgre model) {
         if (model.velikost != zadnjaVelikost) {

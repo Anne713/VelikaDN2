@@ -1,5 +1,9 @@
 import java.util.Random;
 
+/**
+ * Vsebuje vso logiko igre.
+ */
+
 public class ModelIgre {
     int stPotez;
     int ciljnaVsota;

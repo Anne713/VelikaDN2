@@ -1,3 +1,9 @@
+SLO To je igra, ki sem jo naredila za drugo veliko domačo nalogo pri predmetu Programiranje I (FAMNIT, bioinformatika, 1. letnik).
+Za nalogo smo dobili sledeča navodila: \
+ENG This is a game I made for the second big homework in the subject Programming I (FAMNIT, bioinformatics, 1st year), according to the following instructions:
+
+# Navodila / Instructions
+
 V programskem jeziku Java napišite program, ki omogoča igranje igre "More or less less is more".
 
 Pravila igre:
@@ -55,7 +61,3 @@ PAZI!
 - Pazite na pravilno uporabo osnovnih elementov predmetno-naravnanega programiranja - statične metode so prepovedane, posamezne module programa definirajte kot samostojne razrede. (do -5)
 
 - Pazite na pravilno uporabo pogodb! (do -5)
-
-Oddaja:
-
-Oddaj .zip arhiv, ki vsebuje projekt.

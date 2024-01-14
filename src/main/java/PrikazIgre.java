@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Igralnemu polju doda izpis stevila potez, trenutne in ciljne vsote.
+ */
 public class PrikazIgre extends JPanel {
     JLabel stPotez = new JLabel("Število potez: ?");
     JLabel vsote = new JLabel("Vsota: ?     Cilj: ?");
@@ -18,6 +21,11 @@ public class PrikazIgre extends JPanel {
         add(polje, BorderLayout.CENTER);
     }
 
+    /**
+     * Poklicati vsakic, ko se spremeni model.
+     *
+     * @param model
+     */
     void posodobi(ModelIgre model) {
         polje.posodobi(model);
         stPotez.setText("Število potez: "+model.stPotez);
