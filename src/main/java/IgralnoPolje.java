@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- * Mreza vseh celic v igri. Celicam doda listenerja.
+ * Mreza vseh celic v igri.
  */
 public class IgralnoPolje extends JPanel {
     int zadnjaVelikost = 0;
@@ -23,9 +23,6 @@ public class IgralnoPolje extends JPanel {
         this.listener = listener;
     }
 
-    /**
-     * ??
-     */
     private final ActionListener celicaListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -36,9 +33,6 @@ public class IgralnoPolje extends JPanel {
         }
     };
 
-    /**
-     * ??
-     */
     private final MouseListener miskaListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
@@ -61,7 +55,7 @@ public class IgralnoPolje extends JPanel {
     static final int D = S + 2;
 
     /**
-     * Izrise mrezo celic glede na njihovo trenutno stanje, jim doda listenerja,
+     * Izrise mrezo celic glede na njihovo trenutno stanje
      * in izrise oznake vrstic in stolpcev.
      * Potrebno poklicati vsakic, ko se spremenijo stanja celic.
      *

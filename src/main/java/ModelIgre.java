@@ -17,6 +17,15 @@ public class ModelIgre {
     boolean pomocVklopljena;
     Random rnd = new Random();
 
+    /**
+     * Ustvari stevilke, ki bodo v celicah, in jim doloci dovoljeno stanje.
+     * Nastavi parametre igre.
+     *
+     * @param stPotez stevilo potez do konca igre
+     * @param ciljnaVsota sestevek, ki se mu zeli priblizati uporabnik
+     * @param velikost 10-20, velikost kvadratnega igralnega polja
+     */
+
     void inicializacija (int stPotez, int ciljnaVsota, int velikost) {
         this.stPotez = zadnjeStPotez = stPotez;
         this.ciljnaVsota = ciljnaVsota;
@@ -37,6 +46,12 @@ public class ModelIgre {
         kliciListenerja();
     }
 
+    /**
+     * Ustvari igro glede na zeljeno velikost in zahtevnost.
+     *
+     * @param velikost 10-20, 0 ali null, velikost igralnega polja
+     * @param tezavnost lahko null za random
+     */
     void inicializacija (Integer velikost, Tezavnost tezavnost) {
         if (velikost == null || velikost == 0) velikost = rnd.nextInt(10, 21);
         if (tezavnost == null) tezavnost = Tezavnost.RANDOM;
@@ -62,6 +77,9 @@ public class ModelIgre {
         inicializacija(stPotez, ciljnaVsota, velikost);
     }
 
+    /**
+     * Uporabi shranjene vrednosti, da inicializira igro z istimi stevilkami in parametri, kot je bila zadnja.
+     */
     void inicIstoIgro () {
         this.stPotez = zadnjeStPotez;
         trenutnaVsota = 0;
@@ -78,6 +96,12 @@ public class ModelIgre {
         kliciListenerja();
     }
 
+    /**
+     * Spremeni stanja celic glede na izbrano celico.
+     *
+     * @param vrstica
+     * @param stolpec
+     */
     void poteza (int vrstica, int stolpec) {
         previous = current;
         current = stevilke[vrstica][stolpec];
@@ -123,6 +147,13 @@ public class ModelIgre {
             skrijNamig();
     }
 
+    /**
+     * Ce je vklopljena pomoc, spremeni stanja celic, tako da uporabnik vidi,
+     * kaksno bo stanje po potezi, preden naredi to potezo.
+     *
+     * @param vrstica
+     * @param stolpec
+     */
     void prikaziNamig(int vrstica, int stolpec) {
         if (!pomocVklopljena || stanja[vrstica][stolpec] != StanjeCelice.DOVOLJENA) {
             return;
@@ -133,6 +164,9 @@ public class ModelIgre {
         kliciListenerja();
     }
 
+    /**
+     * Neha kazati prihodnje stanje.
+     */
     void skrijNamig() {
         if (igreJeKonec)
             return;
@@ -150,6 +184,9 @@ public class ModelIgre {
     }
     ModelListener listener;
 
+    /**
+     * Preveri, da listener obstaja, preden ga poklice.
+     */
     private void kliciListenerja() {
         if (listener != null) {
             listener.modelSpremenjen();
@@ -160,6 +197,11 @@ public class ModelIgre {
         this.listener = listener;
     }
 
+    /**
+     * Pripravi verzijo igre za shranjevanje s trenutnim stanjem modela.
+     *
+     * @return
+     */
     ShranjenaIgra verzijaZaShranjevanje () {
         skrijNamig();
         ShranjenaIgra igra = new ShranjenaIgra();
@@ -178,6 +220,11 @@ public class ModelIgre {
         return igra;
     }
 
+    /**
+     * Nastavi modelu stanje prebrane igre.
+     *
+     * @param igra
+     */
     void preberi(ShranjenaIgra igra) {
         stPotez = igra.getStPotez();
         ciljnaVsota = igra.getCiljnaVsota();

@@ -3,12 +3,15 @@ import java.awt.*;
 
 /**
  * Okno igre More or less less is more.
- * Nosi ModelIgre, Menu in PrikazIgre.
- * Implementira(?) listenerje modela igre in celic.
+ * Poseduje ModelIgre, Menu in PrikazIgre.
  */
 public class Igra extends JFrame {
 
     public ModelIgre modelIgre;
+
+    /**
+     * Konstruktor nastavi okno in ustvari ModelIgre, PrikazIgre in Menu.
+     */
 
     public Igra () {
         setTitle("More or less less is more");
@@ -53,6 +56,7 @@ public class Igra extends JFrame {
     }
 
     /**
+     * Pripravi sporocilo, ki se izpise uporabniku ob koncu igre.
      *
      * @param rezultat
      * @return sporocilo, ki je razlicno navduseno glede na rezultat

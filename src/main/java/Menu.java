@@ -51,7 +51,7 @@ public class Menu extends JMenuBar {
     }
 
     /**
-     * Konstruktor ustvari vse gumbe menuja in jim nastavi primerne listenerje.
+     * Konstruktor ustvari vse gumbe menuja.
      *
      * @param model
      */
@@ -118,8 +118,8 @@ public class Menu extends JMenuBar {
     }
 
     /**
-     * Sprozi JFileChooser, preko katerega uporabnik izbere pot, na katero nato shrani trenutno stanje igre.
-     * Predlagano ime datoteke vsebuje trenutni cas.
+     * Sprozi dialog, preko katerega uporabnik izbere pot, na katero nato shrani trenutno stanje igre.
+     * Predlagano ime datoteke vsebuje trenutni datum in cas.
      */
     private void izberiPathInShrani() {
         LocalDateTime cas = LocalDateTime.now();
@@ -145,7 +145,7 @@ public class Menu extends JMenuBar {
     }
 
     /**
-     * Sprozi JFileChooser, preko katerega uporabnik izbere pot, s katere nato nalozi shranjeno igro.
+     * Sprozi dialog, preko katerega uporabnik izbere pot, s katere nato nalozi shranjeno igro.
      */
     private void izberiPathInNalozi() {
         JFileChooser fileChooser = new JFileChooser();
@@ -212,14 +212,6 @@ public class Menu extends JMenuBar {
         panel.add(stPotezField);
         panel.add(new JLabel("Ciljna vsota:"));
         panel.add(ciljnaVsotaField);
-
-
-
-
-
-
-
-        // to sva nekje popravlala da ni blo tega int-a???
 
         int result = JOptionPane.showConfirmDialog(this, panel, "Nastavi svojo igro",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

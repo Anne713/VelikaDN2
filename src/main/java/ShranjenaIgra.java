@@ -1,3 +1,7 @@
+/**
+ * Ima vse lastnosti modela igre, ki jih zelimo shraniti,
+ * ter getterje in setterje zanje.
+ */
 public class ShranjenaIgra {
     private int stPotez;
     private int ciljnaVsota;
