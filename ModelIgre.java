@@ -1,9 +1,6 @@
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.Serializable;
 import java.util.Random;
 
-public class ModelIgre implements Serializable {
+public class ModelIgre {
     int stPotez;
     int ciljnaVsota;
     int velikost;
@@ -12,8 +9,9 @@ public class ModelIgre implements Serializable {
     int[][] stevilke;
     StanjeCelice[][] stanja;
     boolean igreJeKonec;
-    transient Random rnd = new Random();
     int zadnjeStPotez;
+    boolean pomocVklopljena;
+    Random rnd = new Random();
 
     void inicializacija (int stPotez, int ciljnaVsota, int velikost) {
         this.stPotez = zadnjeStPotez = stPotez;
@@ -32,9 +30,7 @@ public class ModelIgre implements Serializable {
                 stanja[i][j] = StanjeCelice.DOVOLJENA;
             }
         }
-        if (listener != null) {
-            listener.modelSpremenjen();
-        }
+        kliciListenerja();
     }
 
     void inicializacija (Integer velikost, Tezavnost tezavnost) {
@@ -43,20 +39,20 @@ public class ModelIgre implements Serializable {
 
         switch (tezavnost) {
             case RANDOM -> {
-                stPotez = rnd.nextInt(5, 50);
-                ciljnaVsota = rnd.nextInt(stPotez, stPotez*9);
+                stPotez = rnd.nextInt((velikost*velikost/9)-3, (velikost*velikost/9)+24);
+                ciljnaVsota = rnd.nextInt(stPotez*3, stPotez*6);
             }
             case LAHKA -> {
-                stPotez = rnd.nextInt(3, 12);
-                ciljnaVsota = rnd.nextInt(stPotez, stPotez*3);
+                stPotez = rnd.nextInt((velikost*velikost/9)-3, (velikost*velikost/9)+3);
+                ciljnaVsota = rnd.nextInt(stPotez*3, stPotez*5);
             }
             case SREDNJA -> {
-                stPotez = rnd.nextInt(10, 32);
-                ciljnaVsota = rnd.nextInt(stPotez*3, stPotez*7);
+                stPotez = rnd.nextInt((velikost*velikost/9)+4, (velikost*velikost/9)+12);
+                ciljnaVsota = rnd.nextInt(stPotez*4, stPotez*6);
             }
             case TEZKA -> {
-                stPotez = rnd.nextInt(27, 50);
-                ciljnaVsota = rnd.nextInt(stPotez*6, stPotez*9);
+                stPotez = rnd.nextInt((velikost*velikost/9)+13, (velikost*velikost/9)+24);
+                ciljnaVsota = rnd.nextInt(stPotez*5, stPotez*6);
             }
         }
         inicializacija(stPotez, ciljnaVsota, velikost);
@@ -75,26 +71,7 @@ public class ModelIgre implements Serializable {
                 stanja[i][j] = StanjeCelice.DOVOLJENA;
             }
         }
-        if (listener != null) {
-            listener.modelSpremenjen();
-        }
-    }
-
-    void inicStaroIgro (ModelIgre starModel) {
-        stPotez = starModel.stPotez;
-        ciljnaVsota = starModel.ciljnaVsota;
-        velikost = starModel.velikost;
-        trenutnaVsota = starModel.trenutnaVsota;
-        current = starModel.current;
-        previous = starModel.previous;
-        stevilke = starModel.stevilke;
-        stanja = starModel.stanja;
-        igreJeKonec = starModel.igreJeKonec;
-        zadnjeStPotez = starModel.zadnjeStPotez;
-
-        if (listener != null) {
-            listener.modelSpremenjen();
-        }
+        kliciListenerja();
     }
 
     void poteza (int vrstica, int stolpec) {
@@ -102,20 +79,10 @@ public class ModelIgre implements Serializable {
         current = stevilke[vrstica][stolpec];
         trenutnaVsota += current;
         stanja[vrstica][stolpec] = StanjeCelice.PORABLJENA;
-        boolean nekajJeDovoljeno = false;
-        for (int i = 0; i < velikost; i++) {
-            for (int j = 0; j < velikost; j++) {
-                if (stanja[i][j] != StanjeCelice.PORABLJENA) {
-                    if (dovoljena(i) && dovoljena(j)) {
-                        stanja[i][j] = StanjeCelice.DOVOLJENA;
-                        nekajJeDovoljeno = true;
-                    } else {
-                        stanja[i][j] = StanjeCelice.NEDOVOLJENA;
-                    }
-                }
-            }
-        }
         stPotez--;
+
+        boolean nekajJeDovoljeno = posodobiStanjaCelic(previous, current);
+
         igreJeKonec = (stPotez < 1) || (!nekajJeDovoljeno);
         if (igreJeKonec) {
             for (int i = 0; i < velikost; i++) {
@@ -126,23 +93,99 @@ public class ModelIgre implements Serializable {
                 }
             }
         }
+        kliciListenerja();
+    }
+
+    private boolean posodobiStanjaCelic(int previous, int current) {
+        boolean nekajJeDovoljeno = false;
+        for (int i = 0; i < velikost; i++) {
+            for (int j = 0; j < velikost; j++) {
+                if (stanja[i][j] != StanjeCelice.PORABLJENA) {
+                    if (dovoljena(i, previous, current) && dovoljena(j, previous, current)) {
+                        stanja[i][j] = StanjeCelice.DOVOLJENA;
+                        nekajJeDovoljeno = true;
+                    } else {
+                        stanja[i][j] = StanjeCelice.NEDOVOLJENA;
+                    }
+                }
+            }
+        }
+        return nekajJeDovoljeno;
+    }
+
+    void togglePomoc() {
+        pomocVklopljena = !pomocVklopljena;
+        if (!pomocVklopljena)
+            skrijNamig();
+    }
+
+    void prikaziNamig(int vrstica, int stolpec) {
+        if (!pomocVklopljena || stanja[vrstica][stolpec] != StanjeCelice.DOVOLJENA) {
+            return;
+        }
+
+        posodobiStanjaCelic(current, stevilke[vrstica][stolpec]);
+        stanja[vrstica][stolpec] = StanjeCelice.NAMIGUJOCA;
+        kliciListenerja();
+    }
+
+    void skrijNamig() {
+        if (igreJeKonec)
+            return;
+        posodobiStanjaCelic(previous, current);
+        kliciListenerja();
+    }
+
+    private boolean dovoljena (int i, int previous, int current) {
+        i++;
+        return i % previous == 0 || i % current == 0;
+    }
+
+    public interface ModelListener {
+        void modelSpremenjen ();
+    }
+    ModelListener listener;
+
+    private void kliciListenerja() {
         if (listener != null) {
             listener.modelSpremenjen();
         }
     }
 
-    private boolean dovoljena (int i) {
-        i++;
-        return i % previous == 0 || i % current == 0;
-    }
-
-    interface ModelListener {
-        void modelSpremenjen ();
-    }
-
-    transient ModelListener listener;
-
     public void setListener(ModelListener listener) {
         this.listener = listener;
+    }
+
+    ShranjenaIgra verzijaZaShranjevanje () {
+        skrijNamig();
+        ShranjenaIgra igra = new ShranjenaIgra();
+
+        igra.setStPotez(stPotez);
+        igra.setCiljnaVsota(ciljnaVsota);
+        igra.setVelikost(velikost);
+        igra.setTrenutnaVsota(trenutnaVsota);
+        igra.setCurrent(current);
+        igra.setPrevious(previous);
+        igra.setStevilke(stevilke);
+        igra.setStanja(stanja);
+        igra.setIgreJeKonec(igreJeKonec);
+        igra.setZadnjeStPotez(zadnjeStPotez);
+
+        return igra;
+    }
+
+    void preberi(ShranjenaIgra igra) {
+        stPotez = igra.getStPotez();
+        ciljnaVsota = igra.getCiljnaVsota();
+        velikost = igra.getVelikost();
+        trenutnaVsota = igra.getTrenutnaVsota();
+        current = igra.getCurrent();
+        previous = igra.getPrevious();
+        stevilke = igra.getStevilke();
+        stanja = igra.getStanja();
+        igreJeKonec = igra.isIgreJeKonec();
+        zadnjeStPotez = igra.getZadnjeStPotez();
+
+        kliciListenerja();
     }
 }

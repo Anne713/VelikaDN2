@@ -1,13 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.*;
 
 public class IgralnoPolje extends JPanel {
 
-    interface Listener {
-        void celicaKliknjena (int vrstica, int stolpec);
+    public interface Listener {
+        void celicaKliknjena(int vrstica, int stolpec);
+        void celicaPodMisko(int vrstica, int stolpec);
+        void celicaNiVecPodMisko(int vrstica, int stolpec);
     }
     Listener listener;
 
@@ -21,6 +21,24 @@ public class IgralnoPolje extends JPanel {
             Celica celica = ((Celica) e.getSource());
             if (listener != null) {
                 listener.celicaKliknjena(celica.vrstica, celica.stolpec);
+            }
+        }
+    };
+
+    private final MouseListener miskaListener = new MouseAdapter() {
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            Celica celica = ((Celica) e.getSource());
+            if (listener != null) {
+                listener.celicaPodMisko(celica.vrstica, celica.stolpec);
+            }
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            Celica celica = ((Celica) e.getSource());
+            if (listener != null) {
+                listener.celicaNiVecPodMisko(celica.vrstica, celica.stolpec);
             }
         }
     };
@@ -50,6 +68,7 @@ public class IgralnoPolje extends JPanel {
                     this.add(celica);
                     celica.setBounds(offset + (j+1) * D, offset + (i+1) * D, S, S);
                     celica.addActionListener(celicaListener);
+                    celica.addMouseListener(miskaListener);
                 }
             }
 

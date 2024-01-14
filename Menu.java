@@ -1,7 +1,10 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 import java.time.LocalDateTime;
@@ -16,48 +19,35 @@ public class Menu extends JMenuBar {
     IzbiraVelikosti[] velikosti;
     IzbiraTezavnosti[] tezavnosti;
 
-    private final ActionListener velikostListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            IzbiraVelikosti gumbVelikost = ((IzbiraVelikosti) e.getSource());
-            zacetnaVelikost = gumbVelikost.velikost;
-            modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost);
-        }
-    };
-
-    private final ActionListener tezavnostListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            IzbiraTezavnosti gumbTezavnost = ((IzbiraTezavnosti) e.getSource());
-            zacetnaTezavnost = gumbTezavnost.tezavnost;
-            modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost);
-        }
-    };
-
     class IzbiraVelikosti extends JRadioButton {
-        int velikost;
-        public IzbiraVelikosti (Integer velikost, String label, boolean jeIzbrana) {
+        final int velikost;
+        public IzbiraVelikosti (int velikost, String label, boolean jeIzbrana) {
             this.velikost = velikost;
             this.setText(label);
             this.setSelected(jeIzbrana);
-            this.addActionListener(velikostListener);
+            this.addActionListener(e -> {
+                zacetnaVelikost = velikost;
+                modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost);
+                posodobi();
+            });
         }
     }
-
     class IzbiraTezavnosti extends JRadioButton {
-        Tezavnost tezavnost;
+        final Tezavnost tezavnost;
         public IzbiraTezavnosti (Tezavnost tezavnost, String label, boolean jeIzbrana) {
             this.tezavnost = tezavnost;
             this.setText(label);
             this.setSelected(jeIzbrana);
-            this.addActionListener(tezavnostListener);
+            this.addActionListener(e -> {
+                zacetnaTezavnost = tezavnost;
+                modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost);
+                posodobi();
+            });
         }
     }
-
     Menu(ModelIgre model) {
         this.modelIgre = model;
         this.zacetnoStPotez = model.stPotez;
-        this.zacetnaVelikost = model.velikost;
         this.zacetnaCiljnaVsota = model.ciljnaVsota;
         this.zacetnaTezavnost = Tezavnost.RANDOM;
 
@@ -83,117 +73,97 @@ public class Menu extends JMenuBar {
         tezavnosti[1] = new IzbiraTezavnosti(Tezavnost.LAHKA, "lahka", false);
         tezavnosti[2] = new IzbiraTezavnosti(Tezavnost.SREDNJA, "srednja", false);
         tezavnosti[3] = new IzbiraTezavnosti(Tezavnost.TEZKA, "težka", false);
-        for (int i = 0; i < tezavnosti.length; i++) {
-            nastaviZahtevnost.add(tezavnosti[i]);
+        for (IzbiraTezavnosti izbira : tezavnosti) {
+            nastaviZahtevnost.add(izbira);
         }
 
-        JMenuItem novaIgra = new JMenuItem("Nova igra");
-        ActionListener novaIgraListener = e -> modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost);
-        novaIgra.addActionListener(novaIgraListener);
-        nastavitveIgre.add(novaIgra);
+        dodajMenuItem(nastavitveIgre, "Nova igra", e -> modelIgre.inicializacija(zacetnaVelikost, zacetnaTezavnost));
+        dodajMenuItem(nastavitveIgre, "Poskusi znova", e -> modelIgre.inicIstoIgro());
+        dodajMenuItem(nastavitveIgre, "Nastavi svojo igro", e -> nastaviSvojoIgro());
+        nastavitveIgre.add(new JSeparator());
+        dodajMenuItem(nastavitveIgre, "Shrani igro", e -> izberiPathInShrani());
+        dodajMenuItem(nastavitveIgre, "Naloži igro", e -> izberiPathInNalozi());
+        nastavitveIgre.add(new JSeparator());
+        dodajMenuItem(nastavitveIgre, "Izhod", e -> System.exit(0));
 
-        JMenuItem istaIgra = new JMenuItem("Poskusi znova");
-        ActionListener istaIgraListener = e -> modelIgre.inicIstoIgro();
-        istaIgra.addActionListener(istaIgraListener);
-        nastavitveIgre.add(istaIgra);
+        dodajMenuItem(pomoc, "Navodila igre", e -> prikaziNavodila());
 
-        JMenuItem customIgra = new JMenuItem("Nastavi svojo igro");
-        ActionListener customIgraListener = e -> nastaviSvojoIgro(this);
-        customIgra.addActionListener(customIgraListener);
-        nastavitveIgre.add(customIgra);
+        JCheckBox vklopiPomoc = new JCheckBox("Prikaži pomoč");
+        vklopiPomoc.addActionListener(e -> modelIgre.togglePomoc());
+        pomoc.add(vklopiPomoc);
 
-        JMenuItem shraniIgro = new JMenuItem("Shrani igro");
-        ActionListener shraniIgroListener = e -> {
-            try {
-                izberiPathInShrani(this);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        };
-        shraniIgro.addActionListener(shraniIgroListener);
-        nastavitveIgre.add(shraniIgro);
-
-        JMenuItem naloziIgro = new JMenuItem("Naloži igro");
-        naloziIgro.addActionListener(naloziIgroListener);
-        nastavitveIgre.add(naloziIgro);
     }
 
-    private void izberiPathInShrani(JMenuBar parentMenu) throws IOException {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Izberi ciljno mapo");
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        int izbranaMapa = fileChooser.showSaveDialog(parentMenu);
-
-        if (izbranaMapa == JFileChooser.APPROVE_OPTION) {
-            Path izbranDirectory = fileChooser.getSelectedFile().toPath();
-            shraniModel(izbranDirectory);
-        }
+    void dodajMenuItem(JMenu parent, String label, ActionListener actionListener) {
+        JMenuItem item = new JMenuItem(label);
+        item.addActionListener(actionListener);
+        parent.add(item);
     }
 
-    private void shraniModel(Path izbranPath) throws IOException {
-        Shranjevanje shranjevanje = new Shranjevanje();
+    private void izberiPathInShrani() {
         LocalDateTime cas = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String doberCas = cas.format(formatter);
+        String imeDatoteke = "Igra_"+doberCas+".moreOrLess";
 
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Shrani kot");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileFilter(FILTER);
+        fileChooser.setSelectedFile(new File(imeDatoteke));
+
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
+
+        Path izbranFile = fileChooser.getSelectedFile().toPath();
         try {
-            ModelIgre model = modelIgre;
-            shranjevanje.shrani(model, izbranPath.resolve("MoreOrLessGame_"+doberCas+".dat"));
+            new Shranjevanje().shrani(modelIgre, izbranFile);
         } catch (IOException e) {
-            throw e;
+            prikaziNapako(e.getMessage());
         }
     }
 
-    private Path izberiPathInNalozi(JMenuItem parentMenuItem) throws IOException {
+    private void izberiPathInNalozi() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Izberi dokument");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileFilter(FILTER);
 
-        Path izbranDirectory;
-        int izbranaMapa = fileChooser.showSaveDialog(parentMenuItem);
+        if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
 
-        if (izbranaMapa == JFileChooser.APPROVE_OPTION) {
-            izbranDirectory = fileChooser.getSelectedFile().toPath();
+        Path izbranPath = fileChooser.getSelectedFile().toPath();
+        try {
+            new Shranjevanje().preberi(modelIgre, izbranPath);
+        } catch (IOException e) {
+            prikaziNapako("Prišlo je do napake pri branju datoteke.");
+        }
+    }
+
+    void prikaziNapako(String sporocilo) {
+        if (sporocilo == null)
+            sporocilo = "Neznana napaka.";
+
+        JOptionPane.showMessageDialog(this, sporocilo, "Napaka", JOptionPane.ERROR_MESSAGE);
+    }
+
+    void prikaziNavodila() {
+        try (InputStream is = Menu.class.getResourceAsStream("navodila.txt")) {
+            String vsebina = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            JOptionPane.showMessageDialog(this, vsebina, "Navodila", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void nastaviSvojoIgro() {
+        String predvidenaVelikost;
+        if (zacetnaVelikost == 0) {
+            predvidenaVelikost = "";
         } else {
-            izbranDirectory = null;
+            predvidenaVelikost = Integer.toString(zacetnaVelikost);
         }
-        return izbranDirectory;
-    }
-
-    interface NalagalniListener {
-        void naloziModel (ModelIgre model);
-    }
-
-    NalagalniListener nalagalniListener;
-
-    public void setNaloziIgroListener(NalagalniListener nalagalniListener) {
-        this.nalagalniListener = nalagalniListener;
-    }
-
-    private final ActionListener naloziIgroListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Shranjevanje shranjevanje = new Shranjevanje();
-            JMenuItem parentMenuItem = (JMenuItem) e.getSource();
-            ModelIgre taModelIgre;
-            try {
-                taModelIgre = shranjevanje.preberi(izberiPathInNalozi(parentMenuItem));
-            } catch (IOException exception) {
-                try {
-                    throw exception;
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            if (nalagalniListener != null) {
-                nalagalniListener.naloziModel(taModelIgre);
-            }
-        }
-    };
-
-    void nastaviSvojoIgro (JMenuBar parentMenu) {
-        JTextField velikostField = new JTextField();
+        JTextField velikostField = new JTextField(predvidenaVelikost);
         JTextField stPotezField = new JTextField(""+zacetnoStPotez);
         JTextField ciljnaVsotaField = new JTextField(""+zacetnaCiljnaVsota);
 
@@ -206,7 +176,7 @@ public class Menu extends JMenuBar {
         panel.add(new JLabel("Ciljna vsota:"));
         panel.add(ciljnaVsotaField);
 
-        int result = JOptionPane.showConfirmDialog(parentMenu, panel, "Nastavi svojo igro",
+        int result = JOptionPane.showConfirmDialog(this, panel, "Nastavi svojo igro",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
@@ -222,7 +192,7 @@ public class Menu extends JMenuBar {
                 } else {
                     velikost = zacetnaVelikost;
                 }
-            } else if (!isInteger(velikostField.getText())) {
+            } else if (isNotInteger(velikostField.getText())) {
                 napakaPriVnosu = true;
                 napake += "Velikost polja mora biti celo število. \n";
             } else {
@@ -237,7 +207,7 @@ public class Menu extends JMenuBar {
 
             if (stPotezField.getText().isEmpty()) {
                 stPotez = rnd.nextInt(5, 50);
-            } else if (!isInteger(stPotezField.getText())) {
+            } else if (isNotInteger(stPotezField.getText())) {
                 napakaPriVnosu = true;
                 napake += "Število potez mora biti celo število. \n";
             } else {
@@ -252,7 +222,7 @@ public class Menu extends JMenuBar {
 
             if (ciljnaVsotaField.getText().isEmpty()) {
                 ciljnaVsota = rnd.nextInt(stPotez, stPotez*9);
-            } else if (!isInteger(ciljnaVsotaField.getText())) {
+            } else if (isNotInteger(ciljnaVsotaField.getText())) {
                 napakaPriVnosu = true;
                 napake += "Ciljna vsota mora biti celo število. \n";
             } else {
@@ -267,7 +237,7 @@ public class Menu extends JMenuBar {
 
             if (napakaPriVnosu) {
                 JOptionPane.showMessageDialog(this, napake, "Nepravilen vnos", JOptionPane.WARNING_MESSAGE);
-                nastaviSvojoIgro(parentMenu);
+                nastaviSvojoIgro();
             }
 
             if (stPotez > 0 && ciljnaVsota > 0 && velikost > 0) {
@@ -276,32 +246,35 @@ public class Menu extends JMenuBar {
         }
     }
 
-    private boolean isInteger (String string) {
+    private boolean isNotInteger(String string) {
         try {
-            int x = Integer.parseInt(string);
-            return true;
-        } catch (NumberFormatException e) {
+            Integer.parseInt(string);
             return false;
+        } catch (NumberFormatException e) {
+            return true;
         }
     }
+
     Random rnd = new Random();
 
-
-
     void posodobi() {
-        for (int i = 0; i < velikosti.length; i++) {
-            if (velikosti[i].velikost == zacetnaVelikost) {
-                velikosti[i].setSelected(true);
-            } else {
-                velikosti[i].setSelected(false);
-            }
+        for (IzbiraVelikosti izbira : velikosti) {
+            izbira.setSelected(izbira.velikost == zacetnaVelikost);
         }
-        for (int i = 0; i < tezavnosti.length; i++) {
-            if (tezavnosti[i].tezavnost == zacetnaTezavnost) {
-                tezavnosti[i].setSelected(true);
-            } else {
-                tezavnosti[i].setSelected(false);
-            }
+        for (IzbiraTezavnosti izbiraTezavnosti : tezavnosti) {
+            izbiraTezavnosti.setSelected(izbiraTezavnosti.tezavnost == zacetnaTezavnost);
         }
     }
+
+    public static final FileFilter FILTER = new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+            return file.isDirectory() || file.getName().endsWith(".moreOrLess");
+        }
+
+        @Override
+        public String getDescription() {
+            return "MoreOrLess files (*.moreOrLess)";
+        }
+    };
 }

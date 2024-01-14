@@ -12,6 +12,7 @@ public class Celica extends JButton {
 
         Font font = getFont();
         setFont(font.deriveFont(font.getSize()+3f));
+        setForeground(Color.darkGray);
     }
 
     Color siva = new Color(240, 240, 240);
@@ -25,7 +26,6 @@ public class Celica extends JButton {
             }
             case DOVOLJENA -> {
                 setEnabled(true);
-                setForeground(Color.darkGray);
                 setBackground(Color.white);
                 setBorder(new LineBorder(Color.gray, 2));
             }
@@ -33,6 +33,11 @@ public class Celica extends JButton {
                 setEnabled(false);
                 setBackground(siva);
                 setBorder(new LineBorder(Color.LIGHT_GRAY, 2));
+            }
+            case NAMIGUJOCA -> {
+                setEnabled(true);
+                setBackground(new Color(150, 230, 255));
+                setBorder(new LineBorder(Color.gray, 2));
             }
         }
     }
