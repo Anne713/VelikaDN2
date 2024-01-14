@@ -1,0 +1,10 @@
+Pravila igre:
+
+Podano je število potez in ciljna vsota.
+Cilj igre je se čimbolj približati ciljni vsoti z izbiranjem števil v mreži.
+
+Sprva so na voljo vsa števila, kasneje pa le tista, ki ležijo na preseku
+vrstic in stolpcev, oštevilčenih z večkratniki zadnjih dveh izbir.
+Vsaka celica je lahko izbrana le enkrat.
+Če se zgodi, da ni na voljo nobena celica, je igre predčasno konec.
+
