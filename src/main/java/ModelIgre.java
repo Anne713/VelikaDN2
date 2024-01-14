@@ -18,8 +18,7 @@ public class ModelIgre {
     Random rnd = new Random();
 
     /**
-     * Ustvari stevilke, ki bodo v celicah, in jim doloci dovoljeno stanje.
-     * Nastavi parametre igre.
+     * Ustvari igro z danimi parametri (znova).
      *
      * @param stPotez stevilo potez do konca igre
      * @param ciljnaVsota sestevek, ki se mu zeli priblizati uporabnik
@@ -97,7 +96,7 @@ public class ModelIgre {
     }
 
     /**
-     * Spremeni stanja celic glede na izbrano celico.
+     * Izvede izbrano potezo.
      *
      * @param vrstica
      * @param stolpec
@@ -184,9 +183,6 @@ public class ModelIgre {
     }
     ModelListener listener;
 
-    /**
-     * Preveri, da listener obstaja, preden ga poklice.
-     */
     private void kliciListenerja() {
         if (listener != null) {
             listener.modelSpremenjen();

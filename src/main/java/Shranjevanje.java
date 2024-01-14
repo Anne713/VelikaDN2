@@ -5,13 +5,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 /**
- * Omogoci shranjevanje in nalaganje igre.
+ * Implementira shranjevanje in nalaganje igre v JSON formatu.
  */
 public class Shranjevanje {
     ObjectMapper mapper = new ObjectMapper();
 
     /**
-     * Shrani vse lastnosti modela igre, ki jih potrebujemo za ponovni zagon iste igre, na izbrano pot.
+     * Shrani stanje igre na izbrano pot.
      *
      * @param model
      * @param pot
@@ -24,7 +24,7 @@ public class Shranjevanje {
     }
 
     /**
-     * Prebere lastnosti shranjenega modela igre z izbrane poti in jih poda trenutnemu modelu.
+     * Prebere stanje igre in ga poda trenutnemu modelu.
      *
      * @param model
      * @param pot

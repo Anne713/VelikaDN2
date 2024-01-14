@@ -1,6 +1,6 @@
 /**
  * Ima vse lastnosti modela igre, ki jih zelimo shraniti,
- * ter getterje in setterje zanje.
+ * ter getterje in setterje zanje (za potrebe Jacksona).
  */
 public class ShranjenaIgra {
     private int stPotez;
